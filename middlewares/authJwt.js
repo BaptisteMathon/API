@@ -30,8 +30,7 @@ isExist = async (req, res, next) => {
     return;
   
   }
-  console.log(user.username)
-  console.log(user.admin)
+
   if (!user.admin) {
     res.status(403).send({ message: "User is not admin" });
     return;
