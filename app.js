@@ -13,7 +13,7 @@ var bcrypt = require("bcryptjs");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-mongoose.connect('mongodb://localhost:27017/API')
+mongoose.connect('mongodb://localhost:27017/API?retryWrites=true&w=majority')
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
@@ -133,5 +133,6 @@ app.put('/api/users/:id',[authJwt.verifyToken, authJwt.isExist, rateLimitMiddlew
 
 app.post('/api/auth/signup', controller.signup);
 app.post('/api/auth/signin', controller.signin);
+app.get('/api/oauth/redirect', controller.oauth2Redirect);
 
 module.exports = app;
