@@ -8,8 +8,6 @@ verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(403).send({ message: "No token provided!" });
   } 
-  console.log(token);
-  console.log(config.secret);
 
   if(token === config.secret){
     console.log("token ok")
@@ -25,6 +23,7 @@ verifyToken = (req, res, next) => {
 };
 isExist = async (req, res, next) => {
   const user = await User.findById(req.userId);
+  console.log(user);
   if (!user) {
     res.status(403).send({ message: "User not found" });
     return;

@@ -6,6 +6,9 @@ const User = require('./models/user');
 const authController = require('./controller/authcontroller');
 const authJwt = require('./middlewares/authJwt');
 const controller = require('./controller/authcontroller');
+const rateLimitMiddleware = require('./middlewares/rateLimiter');
+var bcrypt = require("bcryptjs");
+
 
 const app = express();
 app.use(express.json());
@@ -24,7 +27,7 @@ try{
     }   
 });
 
-app.post('/api/todos', [authJwt.verifyToken,authJwt.isExist],async (req, res) => {
+app.post('/api/todos', [authJwt.verifyToken, authJwt.isExist, rateLimitMiddleware],async (req, res) => {
     try {
         const newTodo = new Todo({
         title: req.body.title,
@@ -57,7 +60,7 @@ app.get('/api/todos/:id',async (req, res) => {
     
 });
 
-app.put('/api/todos/:id',[authJwt.verifyToken,authJwt.isExist], async (req, res) => {
+app.put('/api/todos/:id',[authJwt.verifyToken, authJwt.isExist, rateLimitMiddleware], async (req, res) => {
     const todo = await Todo.findById(req.params.id);
     if (!todo) {
         return res.status(404).send('Tâche non trouvée');
@@ -76,11 +79,11 @@ app.put('/api/todos/:id',[authJwt.verifyToken,authJwt.isExist], async (req, res)
 });
 
 
-app.post('/users',[authJwt.verifyToken,authJwt.isExist], async (req, res) => {
+app.post('/api/users',[authJwt.verifyToken, rateLimitMiddleware], async (req, res) => {
     try{
         const newUser = new User({
             username: req.body.username,
-            password: req.body.password,
+            password:  bcrypt.hashSync(req.body.password, 8),
             name: req.body.name
         })
         const savedUser = await newUser.save();
@@ -90,7 +93,7 @@ app.post('/users',[authJwt.verifyToken,authJwt.isExist], async (req, res) => {
     }
 })
 
-app.get('/users', async (req, res) => {
+app.get('/api/users', async (req, res) => {
     try{
         const users = await User.find();
         const usersJson = JSON.stringify(users);
@@ -100,7 +103,7 @@ app.get('/users', async (req, res) => {
     }
 })
 
-app.get('/users/:id', async (req, res) => {
+app.get('/api/users/:id', async (req, res) => {
     try{
         const user = await User.findById(req.params.id);
         if (!user){
@@ -118,7 +121,7 @@ app.get('/users/:id', async (req, res) => {
     }
 })
 
-app.put('/users/:id',[authJwt.verifyToken,authJwt.isExist], async (req, res) => {
+app.put('/api/users/:id',[authJwt.verifyToken, authJwt.isExist, rateLimitMiddleware], async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) {
         return res.status(404).send('Utilisateur non trouvée');
